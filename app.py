@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 import asyncio
 from playwright.async_api import async_playwright
-from playwright_stealth import stealth
+from playwright_stealth import stealth_sync
 import requests
 import os
 
@@ -20,7 +20,7 @@ async def run_grok():
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True, args=['--no-sandbox'])
         page = await browser.new_page()
-        await stealth(page)
+        stealth_sync(page)
         
         await page.goto(GROK_URL, wait_until='networkidle')
         await asyncio.sleep(10)
