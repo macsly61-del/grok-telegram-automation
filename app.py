@@ -45,7 +45,6 @@ async def run_grok():
         return response_text or 'Keine Antwort'
 
 @app.route('/run', methods=['GET'])
-@app.route('/run', methods=['GET'])
 def run():
     try:
         print("=== Starting Grok automation ===")
@@ -59,6 +58,8 @@ def run():
         import traceback
         traceback.print_exc()
         return jsonify({"success": False, "error": error_msg}), 500
+
+@app.route('/')
 def home():
     return "Grok Telegram Bot läuft!"
 
