@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 import asyncio
 from playwright.async_api import async_playwright
-from playwright_stealth import stealth_async
+from playwright_stealth import stealth
 import requests
 import os
 
