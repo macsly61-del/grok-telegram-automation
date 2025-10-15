@@ -1,7 +1,6 @@
 from flask import Flask, jsonify
 import asyncio
 from playwright.async_api import async_playwright
-from playwright_stealth import stealth_async
 import requests
 import os
 
@@ -21,7 +20,7 @@ async def run_grok():
         browser = await p.chromium.launch(headless=True, args=['--no-sandbox', '--disable-blink-features=AutomationControlled'])
         page = await browser.new_page()
         
-        # Stealth ohne Library - setze User Agent manuell
+        # Stealth: User Agent manuell setzen
         await page.set_extra_http_headers({
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         })
