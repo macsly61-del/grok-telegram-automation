@@ -3,6 +3,8 @@ import asyncio
 from playwright.async_api import async_playwright
 import requests
 import os
+import tarfile
+from pathlib import Path
 
 app = Flask(__name__)
 
@@ -11,21 +13,37 @@ CHAT_ID = "5956127672"
 GROK_URL = "https://grok.com/c/d53ee40b-cd9b-4850-9a7f-c72da1801bcf"
 PROMPT = "flüstern? Alles was mit crypto pump zutun hat. Das leise flüstern, was man hört danach Ausschau halten. weltweit, was aktuell ist nicht von der vergangenheit kontrolliere datum Wallet-Bewegungen50k+ Follower, kleine Käufe. Nur echte. Antworte kurz: Asset, Zeit, Chance – oder 'Ruhe'."
 
+USER_DATA_DIR = "/tmp/playwright_profile"
+
+def setup_session():
+    """Entpacke Session-Daten beim Start"""
+    if not os.path.exists(USER_DATA_DIR):
+        os.makedirs(USER_DATA_DIR, exist_ok=True)
+        tar_path = "/app/grok_session_minimal.tar.gz"
+        if os.path.exists(tar_path):
+            print("=== Entpacke Session-Daten ===")
+            with tarfile.open(tar_path, 'r:gz') as tar:
+                tar.extractall(USER_DATA_DIR)
+            print("=== Session-Daten entpackt ===")
+
 def send_telegram(text):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     requests.post(url, data={"chat_id": CHAT_ID, "text": text})
 
 async def run_grok():
+    setup_session()
+    
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True, args=['--no-sandbox', '--disable-blink-features=AutomationControlled'])
-        page = await browser.new_page()
+        context = await p.chromium.launch_persistent_context(
+            user_data_dir=USER_DATA_DIR,
+            headless=True,
+            args=['--no-sandbox', '--disable-blink-features=AutomationControlled']
+        )
         
-        # Stealth: User Agent manuell setzen
-        await page.set_extra_http_headers({
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        })
+        page = await context.new_page()
         
-        await page.goto(GROK_URL, wait_until='networkidle', timeout=60000)
+        await page.goto(GROK_URL, wait_until='domcontentloaded', timeout=120000)
+        await page.wait_for_selector('input[type="text"], textarea, div[role="textbox"]', timeout=60000)
         await asyncio.sleep(10)
         
         selector = 'div.response-content-markdown > p, div.response-content-markdown > strong'
@@ -44,7 +62,7 @@ async def run_grok():
                     break
             await asyncio.sleep(0.5)
         
-        await browser.close()
+        await context.close()
         return response_text or 'Keine Antwort'
 
 @app.route('/run', methods=['GET'])
