@@ -20,7 +20,7 @@ async def run_grok():
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True, args=['--no-sandbox'])
         page = await browser.new_page()
-        await stealth_async(page)
+        await stealth(page)
         
         await page.goto(GROK_URL, wait_until='networkidle')
         await asyncio.sleep(10)
