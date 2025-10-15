@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 TELEGRAM_TOKEN = "8376996434:AAG4f3djBHorRLSCaF2NIVoiV8lrwb7Ztak"
 CHAT_ID = "5956127672"
-GROK_URL = "https://grok.com/c/d53ee40b-cd9b-4850-9a7f-c72da1801bcf"
+GROK_URL = "https://grok.com/c"
 PROMPT = "flüstern? Alles was mit crypto pump zutun hat. Das leise flüstern, was man hört danach Ausschau halten. weltweit, was aktuell ist nicht von der vergangenheit kontrolliere datum Wallet-Bewegungen50k+ Follower, kleine Käufe. Nur echte. Antworte kurz: Asset, Zeit, Chance – oder 'Ruhe'."
 
 def send_telegram(text):
