@@ -45,15 +45,20 @@ async def run_grok():
         return response_text or 'Keine Antwort'
 
 @app.route('/run', methods=['GET'])
+@app.route('/run', methods=['GET'])
 def run():
     try:
+        print("=== Starting Grok automation ===")
         result = asyncio.run(run_grok())
+        print(f"=== Got result: {result} ===")
         send_telegram(f"🔔 Grok: {result}")
         return jsonify({"success": True, "response": result})
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-
-@app.route('/')
+        error_msg = f"Error: {str(e)}"
+        print(f"=== ERROR: {error_msg} ===")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": error_msg}), 500
 def home():
     return "Grok Telegram Bot läuft!"
 
