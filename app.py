@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 import asyncio
 from playwright.async_api import async_playwright
-from playwright_stealth import stealth_sync
+from playwright_stealth import stealth_async
 import requests
 import os
 
@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 TELEGRAM_TOKEN = "8376996434:AAG4f3djBHorRLSCaF2NIVoiV8lrwb7Ztak"
 CHAT_ID = "5956127672"
-GROK_URL = "https://grok.com/c"
+GROK_URL = "https://grok.com/c/d53ee40b-cd9b-4850-9a7f-c72da1801bcf"
 PROMPT = "flüstern? Alles was mit crypto pump zutun hat. Das leise flüstern, was man hört danach Ausschau halten. weltweit, was aktuell ist nicht von der vergangenheit kontrolliere datum Wallet-Bewegungen50k+ Follower, kleine Käufe. Nur echte. Antworte kurz: Asset, Zeit, Chance – oder 'Ruhe'."
 
 def send_telegram(text):
@@ -18,11 +18,15 @@ def send_telegram(text):
 
 async def run_grok():
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True, args=['--no-sandbox'])
+        browser = await p.chromium.launch(headless=True, args=['--no-sandbox', '--disable-blink-features=AutomationControlled'])
         page = await browser.new_page()
-        stealth_sync(page)
         
-        await page.goto(GROK_URL, wait_until='networkidle')
+        # Stealth ohne Library - setze User Agent manuell
+        await page.set_extra_http_headers({
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        })
+        
+        await page.goto(GROK_URL, wait_until='networkidle', timeout=60000)
         await asyncio.sleep(10)
         
         selector = 'div.response-content-markdown > p, div.response-content-markdown > strong'
